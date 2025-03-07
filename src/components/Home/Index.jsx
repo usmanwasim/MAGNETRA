@@ -4,7 +4,7 @@ import About from "./About";
 import Features from "./Features";
 import Trading from "./Trading";
 import Governance from "./Governance";
-import Partnership from "./partnership";
+import Partnership from "./Partnership";
 import Technical from "./Technical";
 import Roadmap from "./Roadmap";
 
