@@ -9,10 +9,10 @@ import {
 import angleIcon from "../../assets/angleIcon.png";
 import bannerImg from "../../assets/bannerImg.png";
 import img from "../../assets/tradingImg.png";
-import icon1 from "../../assets/ticon1.png";
-import icon2 from "../../assets/ticon2.png";
-import icon3 from "../../assets/ticon3.png";
-import icon4 from "../../assets/ticon4.png";
+import icon1 from "../../assets/tIcon1.png";
+import icon2 from "../../assets/tIcon2.png";
+import icon3 from "../../assets/tIcon3.png";
+import icon4 from "../../assets/tIcon4.png";
 
 const Trading = () => {
   return (

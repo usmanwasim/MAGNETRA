@@ -9,9 +9,9 @@ import {
 import React from "react";
 import img from "../../assets/featureBorder.png";
 import img1 from "../../assets/feature.png";
-import icon1 from "../../assets/ficon1.png";
-import icon2 from "../../assets/ficon2.png";
-import icon3 from "../../assets/ficon3.png";
+import icon1 from "../../assets/fIcon1.png";
+import icon2 from "../../assets/fIcon2.png";
+import icon3 from "../../assets/fIcon3.png";
 
 const FeatureCard = ({ title, description, icon }) => (
   <Card
