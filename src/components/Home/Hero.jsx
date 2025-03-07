@@ -1,7 +1,7 @@
 import { Box, Container, Grid, Typography } from "@mui/material";
 import React from "react";
 import img from "../../assets/heroImg.png";
-import vector from "../../assets/vector.png"; //change img name
+import vector from "../../assets/vector1.png"; //change img name
 
 const Hero = () => {
   return (
