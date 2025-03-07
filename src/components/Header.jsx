@@ -76,6 +76,8 @@ const Header = () => {
                     bgcolor: "#000",
                     color: "#fff",
                     overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
                   {menuItems.map(({ name, path }, i) => (
