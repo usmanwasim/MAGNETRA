@@ -2,6 +2,7 @@ import { Box, Container, Grid, Typography } from "@mui/material";
 import React from "react";
 import img from "../../assets/heroImg.png";
 import vector from "../../assets/vector1.png"; //change img name
+import Presale from "./Presale";
 
 const Hero = () => {
   return (
@@ -84,7 +85,8 @@ const Hero = () => {
               zIndex: 2,
             }}
           >
-            <Box
+            <Presale />
+            {/* <Box
               component="img"
               src={img}
               alt="3D Cube Visualization"
@@ -100,7 +102,7 @@ const Hero = () => {
                   "100%": { transform: "translateY(0px)" },
                 },
               }}
-            />
+            /> */}
           </Grid>
         </Grid>
       </Container>
