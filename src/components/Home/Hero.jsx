@@ -20,13 +20,12 @@ const Hero = () => {
           container
           spacing={2}
           alignItems="center"
-          sx={{ minHeight: { xs: "auto", md: "60vh" } }}
+          sx={{ minHeight: { xs: "auto", md: "60vh" }, py: { xs: 4, md: 8 } }}
         >
           {/* Left Content */}
           <Grid item xs={12} md={6} sx={{ zIndex: 2 }}>
             <Box
               sx={{
-                py: { xs: 4, md: 8 },
                 px: { xs: 2, md: 4 },
               }}
             >

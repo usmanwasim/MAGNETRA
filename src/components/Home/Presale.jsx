@@ -193,11 +193,42 @@ const connection = new Connection(
 
 const USDCMINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 
+const getTimeLeft = (endTime) => {
+  const difference = new Date(endTime) - Date.now();
+
+  if (difference > 0) {
+    return {
+      days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+      minutes: Math.floor((difference / 1000 / 60) % 60),
+      seconds: Math.floor((difference / 1000) % 60),
+    };
+  }
+
+  return { days: 0, hours: 0, minutes: 0, seconds: 0 }; // Presale ended
+};
+
+const presaleEndTime = 1742065199000; // stage 1 end time in milliseconds
+
 function PresaleForm() {
   const [selectedChain, setSelectedChain] = useState("eth");
   const [selectedToken, setSelectedToken] = useState("");
   const [amount, setAmount] = useState("");
   const [cryptoPrices, setCryptoPrices] = useState({});
+  const [preSaleTime, setPreSaleTime] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPreSaleTime(getTimeLeft(presaleEndTime));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const { open } = useAppKit();
   const { isConnected, address } = useAppKitAccount();
@@ -587,7 +618,6 @@ function PresaleForm() {
       sx={{
         width: "100%",
         bgcolor: "#000000",
-        py: { xs: 6, md: 10 },
         px: { xs: 2, sm: 3, md: 4 },
       }}
     >
@@ -613,7 +643,7 @@ function PresaleForm() {
                 sx={{
                   fontSize: { xs: "18px", sm: "24px", md: "30px" },
                   fontFamily: "plus jakarta sans",
-                  mb: 2,
+
                   fontWeight: 600,
                 }}
               >
@@ -631,7 +661,38 @@ function PresaleForm() {
                 Presale
               </Typography>
               <Typography component="h5" sx={{ fontWeight: "bold" }}>
-                Stage 7
+                <span
+                  style={{
+                    background:
+                      "linear-gradient(-90deg, #e561c3 0%, #a261e5 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    width: "max-content",
+                  }}
+                >
+                  Phase 1{" "}
+                </span>
+                Ended on
+              </Typography>
+              <Typography
+                component="p"
+                sx={{
+                  fontWeight: "400",
+                }}
+              >
+                <span
+                  style={{
+                    background:
+                      "linear-gradient(-90deg, #e561c3 0%, #a261e5 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    width: "max-content",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {preSaleTime.days} Days - {preSaleTime.hours} Hrs -{" "}
+                  {preSaleTime.minutes} Min - {preSaleTime.seconds} Sec
+                </span>
               </Typography>
               <Typography
                 sx={{
@@ -639,7 +700,17 @@ function PresaleForm() {
                   mb: 1,
                 }}
               >
-                1 MGNT = $ {import.meta.env.VITE_TOKEN_PRICE}
+                <span style={{ fontWeight: "bold" }}>1 MGN =</span> ${" "}
+                {import.meta.env.VITE_TOKEN_PRICE}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: { xs: 12, sm: 14 },
+                  mb: 1,
+                }}
+              >
+                <span style={{ fontWeight: "bold" }}>Launch Price =</span> $
+                0.04
               </Typography>
               <Box
                 sx={{
@@ -653,10 +724,21 @@ function PresaleForm() {
                 <Box
                   sx={{
                     position: "absolute",
+                    bottom: -20,
+                    right: 0,
+                    height: "100%",
+                    fontSize: "10px",
+                  }}
+                >
+                  30 M
+                </Box>
+                <Box
+                  sx={{
+                    position: "absolute",
                     top: 0,
                     left: 0,
                     height: "100%",
-                    width: `${57}%`,
+                    width: `${0}%`,
                     borderRadius: 4,
                     background:
                       "linear-gradient(-90deg, #e561c3 0%, #a261e5 100%)",
@@ -667,12 +749,12 @@ function PresaleForm() {
                     verticalAlign: "middle",
                   }}
                 >
-                  {57}%
+                  {0}%
                 </Box>
               </Box>
             </Box>
             {/* Selectors in one row */}
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <Typography
                 variant="subtitle2"
                 sx={{ my: 2, color: "rgba(255,255,255,0.7)" }}
@@ -815,7 +897,7 @@ function PresaleForm() {
             </Box>
 
             {/* Amount Input */}
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <Typography
                 variant="subtitle2"
                 sx={{ mb: 1, color: "rgba(255,255,255,0.7)" }}
@@ -856,17 +938,17 @@ function PresaleForm() {
             </Box>
 
             {/* Amount to Receive */}
-            <Box sx={{ mb: 4 }}>
+            <Box sx={{ mb: 2 }}>
               <Typography
                 variant="subtitle2"
                 sx={{ mb: 1, color: "rgba(255,255,255,0.7)" }}
               >
-                Amount in MGNT You Receive:
+                Amount in MGN You Receive:
               </Typography>
               <StyledTextField
                 fullWidth
                 value={calculateReceiveAmount()}
-                disabled
+                readOnly
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">

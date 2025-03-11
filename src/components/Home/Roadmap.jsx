@@ -7,7 +7,10 @@ import roadmapImg from "../../assets/roadmapImg.png";
 import rBanner from "../../assets/rBanner.png";
 const RoadmapPhase = ({ quarter, title, subtitle, items }) => (
   <Box sx={{ mb: 4 }}>
-    <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.7)", mb: 2 }}>
+    <Typography
+      variant="body1"
+      sx={{ color: "rgba(255,255,255,0.7)", mb: 1, ml: 1 }}
+    >
       {quarter}
     </Typography>
     <Box sx={{ mb: 3 }}>
