@@ -149,4 +149,5 @@ export const contracts = {
   eth: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
   bnb: "0x55d398326f99059fF775485246999027B3197955",
   sol: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  trx: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
 };

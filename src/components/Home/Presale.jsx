@@ -50,6 +50,7 @@ import {
 import { networks, contracts } from "./Networks";
 import abi from "./abi.json";
 import axios from "axios";
+// import TronWeb from "tronweb";
 
 const StyledInputLabel = styled(InputLabel)({
   color: "rgba(255, 255, 255, 0.7)",
@@ -190,7 +191,7 @@ const connection = new Connection(
   "https://mainnet.helius-rpc.com/?api-key=d70a7724-24a1-41cd-9496-e471e2ae03e8"
 );
 
-const USDCMINT = new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
+const USDCMINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 
 function PresaleForm() {
   const [selectedChain, setSelectedChain] = useState("eth");
@@ -201,9 +202,7 @@ function PresaleForm() {
   const { open } = useAppKit();
   const { isConnected, address } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider("solana"); // for solana
-  const { chainId, switchNetwork, caipNetworkId } = useAppKitNetwork();
-
-  console.log({ caipNetworkId, chainId,address });
+  const { chainId, switchNetwork } = useAppKitNetwork();
 
   // Set default token when chain changes
   useEffect(() => {
@@ -225,13 +224,16 @@ function PresaleForm() {
     const getCryptoPrices = async () => {
       try {
         let pricesMap = await axios.get(
-          "https://api.coingecko.com/api/v3/simple/price?ids=ethereum,solana,binancecoin&vs_currencies=usd"
+          "https://api.coingecko.com/api/v3/simple/price?ids=ethereum,solana,binancecoin,tron&vs_currencies=usd"
         );
         pricesMap = pricesMap.data;
+        // console.log(pricesMap);
+
         let pricesFormatted = {
           eth: pricesMap.ethereum.usd,
           sol: pricesMap.solana.usd,
           bnb: pricesMap.binancecoin.usd,
+          trx: pricesMap.tron.usd,
         };
         setCryptoPrices(pricesFormatted);
       } catch (error) {
@@ -242,11 +244,19 @@ function PresaleForm() {
     getCryptoPrices();
   }, []);
 
-  const handleChainChange = (event) => {
+  const handleChainChange = async (event) => {
     console.log(event.target.value);
-    switchNetwork(networks[event.target.value]);
-    setAmount("");
+    if (event.target.value === "trx") {
+      let address = await connectTronLink();
+      if (!address) {
+        toast.error("Please unlock TronLink to switch network");
+        return;
+      }
+    } else {
+      switchNetwork(networks[event.target.value]);
+    }
     setSelectedChain(event.target.value);
+    setAmount("");
   };
 
   const handleTokenChange = (event) => {
@@ -257,7 +267,7 @@ function PresaleForm() {
   // max button
   const handleMaxClick = async () => {
     try {
-      if (!isConnected) {
+      if (selectedChain !== "trx" && !isConnected) {
         return toast.error("Please connect your wallet");
       }
       if (selectedChain === "sol") {
@@ -278,8 +288,31 @@ function PresaleForm() {
           let formatedBalance = formatUnits(balance.toString(), 9);
           setAmount(formatedBalance);
         }
+      } else if (selectedChain === "trx") {
+        if (!window.tronWeb) toast.error("TronLink is not installed");
+        if (!window.tronWeb.defaultAddress.base58)
+          toast.error("Please connect your wallet");
+        if (selectedToken === "USDT") {
+          console.log(contracts[selectedChain]);
+          const userAddress = window.tronWeb.defaultAddress.base58;
+          const usdtContract = await window.tronWeb
+            .contract()
+            .at(contracts[selectedChain]);
+
+          const decimals = await usdtContract.decimals().call();
+          const result = await usdtContract.balanceOf(userAddress).call();
+          let formatedBalance = formatUnits(result, decimals);
+          console.log({ decimals, result, formatedBalance });
+
+          setAmount(formatedBalance);
+        } else {
+          const balanceInSun = await window.tronWeb.trx.getBalance(address);
+          const balanceInTRX = window.tronWeb.fromSun(balanceInSun);
+          console.log({ balanceInSun, balanceInTRX });
+          setAmount(balanceInTRX);
+        }
       } else {
-        if (selectedToken.id === "usdt") {
+        if (selectedToken === "USDT") {
           const decimals = await readContract(wagmiAdapter.wagmiConfig, {
             abi,
             address: contracts[selectedChain],
@@ -311,7 +344,7 @@ function PresaleForm() {
 
   // calculate receive token amount
   const calculateReceiveAmount = () => {
-    const rate = 1; // Example rate: 1 token = 1000 presale tokens
+    const rate = import.meta.env.VITE_TOKEN_PRICE; // Example rate: 1 token = 1000 presale tokens
     try {
       if (!amount || amount === "" || !cryptoPrices[selectedChain]) return 0;
 
@@ -342,7 +375,7 @@ function PresaleForm() {
   // function to send a TX to solana
   const handleSendTx = async () => {
     try {
-      if (selectedToken.id === "usdt") {
+      if (selectedToken === "USDC") {
         const senderAccount = await getAssociatedTokenAddress(
           USDCMINT,
           new PublicKey(address)
@@ -416,9 +449,74 @@ function PresaleForm() {
     }
   };
 
+  const connectTronLink = async () => {
+    try {
+      if (window.tronWeb) {
+        await window.tronWeb.request({ method: "tron_requestAccounts" });
+        console.log(window.tronWeb.defaultAddress);
+
+        return window.tronWeb.defaultAddress.base58
+          ? window.tronWeb.defaultAddress.base58
+          : null;
+      } else {
+        console.error("TronLink is not installed.");
+        toast.error("TronLink is not installed");
+        return null;
+      }
+    } catch (error) {
+      console.log(error, "in connect tron ");
+      toast.error("Error connecting to TronLink");
+      return null;
+    }
+  };
+
+  const sendTRX = async () => {
+    try {
+      if (!window.tronWeb) toast.error("TronLink is not installed");
+      if (!window.tronWeb.defaultAddress.base58) {
+        toast.error("Please connect your wallet");
+      }
+
+      const amountInSun = window.tronWeb.toSun(amount);
+      const transaction = await window.tronWeb.trx.sendTransaction(
+        import.meta.env.VITE_TRON_ADDRESS,
+        amountInSun
+      );
+      console.log("TRX Transaction ---->> ", transaction);
+      toast.success("Transaction sent successfully");
+      return transaction;
+    } catch (error) {
+      console.error("TRX Transaction Error:", error);
+      toast.error(error);
+    }
+  };
+
+  const sendUSDT = async () => {
+    try {
+      if (!window.tronWeb) toast.error("TronLink is not installed");
+      if (!window.tronWeb.defaultAddress.base58)
+        toast.error("Please connect your wallet");
+
+      const usdtContract = await window.tronWeb
+        .contract()
+        .at(contracts[selectedChain]);
+      const amountInSun = amount * 1_000_000;
+
+      const transaction = await usdtContract
+        .transfer(import.meta.env.VITE_TRON_ADDRESS, amountInSun)
+        .send();
+      console.log("TRX Transaction ---->> ", transaction);
+      toast.success("Transaction sent successfully");
+      return transaction;
+    } catch (error) {
+      console.error("USDT Transaction Error:", error);
+      toast.error(error);
+    }
+  };
+
   const handleSendTransaction = async () => {
     try {
-      if (!isConnected) {
+      if (selectedChain !== "trx" && !isConnected) {
         return toast.error("Please connect your wallet");
       }
 
@@ -432,8 +530,14 @@ function PresaleForm() {
 
       if (chainId === "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp") {
         await handleSendTx();
+      } else if (selectedChain === "trx") {
+        if (selectedToken === "USDT") {
+          await sendUSDT();
+        } else {
+          await sendTRX();
+        }
       } else {
-        if (selectedToken.id === "usdt") {
+        if (selectedToken === "USDT") {
           //    check token decimals
           const result = await readContract(wagmiAdapter.wagmiConfig, {
             abi,
@@ -448,7 +552,7 @@ function PresaleForm() {
             abi,
             functionName: "transfer",
             chainId,
-            args: [import.meta.env.VITE_WALLET_ADDRESS, amountInUnits],
+            args: [import.meta.env.VITE_EVM_ADDRESS, amountInUnits],
           });
           const receipt = await waitForTransactionReceipt(
             wagmiAdapter?.wagmiConfig,
@@ -462,7 +566,7 @@ function PresaleForm() {
           toast.success("Transaction sent successfully");
         } else {
           const result = await sendTransaction(wagmiAdapter?.wagmiConfig, {
-            to: import.meta.env.VITE_WALLET_ADDRESS,
+            to: import.meta.env.VITE_EVM_ADDRESS,
             value: parseEther(amount),
             chainId,
           });
@@ -503,11 +607,75 @@ function PresaleForm() {
           }}
         >
           <CardContent sx={{ p: 3 }}>
+            <Box sx={{ textAlign: "center" }}>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontSize: { xs: "18px", sm: "24px", md: "30px" },
+                  fontFamily: "plus jakarta sans",
+                  mb: 2,
+                  fontWeight: 600,
+                }}
+              >
+                <span
+                  style={{
+                    background:
+                      "linear-gradient(-90deg, #e561c3 0%, #a261e5 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    width: "max-content",
+                  }}
+                >
+                  MAGNETRA
+                </span>{" "}
+                Presale
+              </Typography>
+              <Typography component="h5" sx={{ fontWeight: "bold" }}>
+                Stage 7
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: { xs: 12, sm: 14 },
+                  mb: 1,
+                }}
+              >
+                1 MGNT = $ {import.meta.env.VITE_TOKEN_PRICE}
+              </Typography>
+              <Box
+                sx={{
+                  position: "relative",
+                  width: "100%",
+                  height: 15,
+                  borderRadius: 4,
+                  bgcolor: "#ffffff20",
+                }}
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    height: "100%",
+                    width: `${57}%`,
+                    borderRadius: 4,
+                    background:
+                      "linear-gradient(-90deg, #e561c3 0%, #a261e5 100%)",
+                    fontSize: "10px",
+                    fontWeight: 900,
+                    pr: 1,
+                    textAlign: "right",
+                    verticalAlign: "middle",
+                  }}
+                >
+                  {57}%
+                </Box>
+              </Box>
+            </Box>
             {/* Selectors in one row */}
             <Box sx={{ mb: 3 }}>
               <Typography
                 variant="subtitle2"
-                sx={{ mb: 4, color: "rgba(255,255,255,0.7)" }}
+                sx={{ my: 2, color: "rgba(255,255,255,0.7)" }}
               >
                 Select Chain & Token
               </Typography>
@@ -713,7 +881,7 @@ function PresaleForm() {
                 }}
               />
             </Box>
-            {isConnected ? (
+            {selectedChain === "trx" || isConnected ? (
               <>
                 <Button
                   fullWidth
