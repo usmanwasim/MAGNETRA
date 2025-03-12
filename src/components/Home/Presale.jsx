@@ -13,6 +13,7 @@ import {
   InputLabel,
   styled,
   Grid,
+  Chip,
 } from "@mui/material";
 import { Wallet } from "lucide-react";
 import { toast } from "react-toastify";
@@ -389,13 +390,14 @@ function PresaleForm() {
         selectedToken.toLowerCase() === "usdt" ||
         selectedToken.toLowerCase() === "usdc"
       ) {
-        let baseAmount = parsedAmount * rate;
-        return baseAmount;
+        let baseAmount = parsedAmount / rate;
+        return baseAmount.toFixed(4);
       }
 
       const priceInUSDT = cryptoPrices[selectedChain] * parsedAmount;
-      const baseAmount = priceInUSDT * rate;
-      return baseAmount;
+      const baseAmount = priceInUSDT / rate;
+
+      return baseAmount.toFixed(4);
     } catch (err) {
       console.log(err);
       toast.error("Error calculating token amount");
@@ -677,7 +679,8 @@ function PresaleForm() {
               <Typography
                 component="p"
                 sx={{
-                  fontWeight: "400",
+                  my: 0.5,
+                  fontSize: { xs: "12px", sm: "18px" },
                 }}
               >
                 <span
@@ -697,10 +700,10 @@ function PresaleForm() {
               <Typography
                 sx={{
                   fontSize: { xs: 12, sm: 14 },
-                  mb: 1,
+                  // mb: 1,
                 }}
               >
-                <span style={{ fontWeight: "bold" }}>1 MGN =</span> ${" "}
+                <span style={{ fontWeight: "bold" }}>1 $MGN =</span> ${" "}
                 {import.meta.env.VITE_TOKEN_PRICE}
               </Typography>
               <Typography
@@ -902,13 +905,13 @@ function PresaleForm() {
                 variant="subtitle2"
                 sx={{ mb: 1, color: "rgba(255,255,255,0.7)" }}
               >
-                Amount in {selectedToken} You Pay:
+                You Pay:
               </Typography>
               <StyledTextField
                 fullWidth
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="Enter Amount"
+                placeholder={`Amount in ${selectedToken}`}
                 type="number"
                 InputProps={{
                   endAdornment: (
@@ -943,11 +946,13 @@ function PresaleForm() {
                 variant="subtitle2"
                 sx={{ mb: 1, color: "rgba(255,255,255,0.7)" }}
               >
-                Amount in MGN You Receive:
+                {/* Amount in $MGN */}
+                You Receive:
               </Typography>
               <StyledTextField
                 fullWidth
-                value={calculateReceiveAmount()}
+                // value={calculateReceiveAmount()}
+                value={`${calculateReceiveAmount()} $MGN`}
                 readOnly
                 InputProps={{
                   endAdornment: (
