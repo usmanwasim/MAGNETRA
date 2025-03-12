@@ -672,7 +672,7 @@ function PresaleForm() {
                 >
                   Phase 1{" "}
                 </span>
-                Ended on
+                Ends In
               </Typography>
               <Typography
                 component="p"
