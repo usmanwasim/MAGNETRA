@@ -733,7 +733,7 @@ function PresaleForm() {
                     fontSize: "10px",
                   }}
                 >
-                  30 M
+                  30M $MGN
                 </Box>
                 <Box
                   sx={{
