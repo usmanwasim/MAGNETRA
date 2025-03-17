@@ -46,28 +46,33 @@ const Hero = () => {
                 variant="h1"
                 component="h1"
                 sx={{
-                  fontWeight: 400,
-                  fontSize: { xs: "3rem", sm: "4rem", md: "5rem" },
+                  fontWeight: 700,
+                  fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
                   lineHeight: 1.1,
                   mb: 1,
                   fontFamily: "Plus Jakarta Sans",
                 }}
               >
-                Cross-chain
+                The Premier DEX on Mantra
               </Typography>
 
               <Typography
-                variant="h1"
-                component="div"
+                // variant="h1"
+                // component="div"
                 sx={{
-                  fontWeight: 700,
-                  fontSize: { xs: "3rem", sm: "4rem", md: "5rem" },
-                  lineHeight: 1.1,
+                  fontWeight: 400,
+                  // fontSize: { xs: "3rem", sm: "4rem", md: "5rem" },
+                  fontSize: { xs: "12px", sm: "14px", md: "16px" },
+                  // lineHeight: 1.1,
+                  color: "#f5f5f5",
                   mb: 4,
                   fontFamily: "Plus Jakarta Sans",
                 }}
               >
-                Defi hub
+                {/* Defi hub */}
+                The decentralized exchange built to power Mantra’s DeFi
+                ecosystem.
+                <br /> Trade, Stake and Earn
               </Typography>
             </Box>
           </Grid>

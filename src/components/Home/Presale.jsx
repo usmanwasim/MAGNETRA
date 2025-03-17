@@ -674,7 +674,7 @@ function PresaleForm() {
                 >
                   Phase 1{" "}
                 </span>
-                Ends In
+                {/* Ends In */}
               </Typography>
               <Typography
                 component="p"
@@ -693,8 +693,9 @@ function PresaleForm() {
                     fontWeight: "bold",
                   }}
                 >
-                  {preSaleTime.days} Days - {preSaleTime.hours} Hrs -{" "}
-                  {preSaleTime.minutes} Min - {preSaleTime.seconds} Sec
+                  {/* {preSaleTime.days} Days - {preSaleTime.hours} Hrs -{" "}
+                  {preSaleTime.minutes} Min - {preSaleTime.seconds} Sec */}
+                  Coming Soon
                 </span>
               </Typography>
               <Typography
@@ -974,7 +975,8 @@ function PresaleForm() {
                   fullWidth
                   variant="contained"
                   startIcon={<Wallet size={20} />}
-                  onClick={() => handleSendTransaction()}
+                  // onClick={() => handleSendTransaction()}
+                  disabled={true}
                   sx={{
                     py: 1.5,
                     background:
