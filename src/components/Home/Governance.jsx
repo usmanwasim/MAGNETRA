@@ -206,8 +206,8 @@ const Governance = () => {
               <Grid item xs={12} md={6}>
                 <SecurityCard
                   image={utilityImg2}
-                  title="AI-Powered Fraud Detection"
-                  description="Real-time monitoring of suspicious activities, ensuring a secure trading environment."
+                  title="Cross-Chain Security Integration"
+                  description="Safeguarding assets across the Mantra Chain ecosystem for secure cross-chain interactions."
                 />
               </Grid>
             </Grid>

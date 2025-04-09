@@ -106,7 +106,7 @@ const About = () => {
                 color: "#rgba(255, 255, 255, 0.9)",
               }}
             >
-              There is no DEX or DeFi platform on the Magnetra chain, making it
+              There is no DEX or DeFi platform on the Mantra chain, making it
               difficult for projects to launch tokens and build within the
               ecosystem. This limits the growth of the Magnetra ecosystem. Our
               DEX will unlock the first DeFi infrastructure layer for Magnetra,

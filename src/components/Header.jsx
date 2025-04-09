@@ -1,6 +1,8 @@
-import { Box, Container, Drawer, Hidden } from "@mui/material";
+import { Box, Button, Container, Drawer, Hidden } from "@mui/material";
 import React, { useState } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
+import flogo from "../assets/flogo.png";
+import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 
 const menuItems = [
   { name: "ABOUT", path: "#about" },
@@ -10,10 +12,17 @@ const menuItems = [
   { name: "TOKENOMICS", path: "#tokenomics" },
   { name: "TECHNICAL OVERVIEW", path: "#overview" },
   { name: "ROADMAP", path: "#roadmap" },
+  {
+    name: "AIRDROP",
+    path: "https://docs.google.com/forms/d/e/1FAIpQLSeDORak8804SV6q8hAmCT9pH7y3Km20n2ac9o5QMcEwKZNbxg/viewform?embedded=true",
+  },
 ];
 
 const Header = () => {
-  const [open, setOpen] = useState(false);
+  const [open1, setOpen1] = useState(false);
+  const { open } = useAppKit();
+  const { isConnected } = useAppKitAccount();
+
   return (
     <>
       <Box>
@@ -21,11 +30,14 @@ const Header = () => {
           <Box
             sx={{
               display: "flex",
-              justifyContent: { xs: "end", md: "center" },
-              gap: 5,
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 2,
               py: { xs: 2, sm: 3, md: 4 },
             }}
           >
+            <Box component="img" src={flogo} width="150px" alt="" />
+
             <Hidden mdDown>
               {menuItems.map(({ name, path }, i) => (
                 <Box
@@ -33,12 +45,13 @@ const Header = () => {
                   href={path}
                   key={i}
                   sx={{
+                    gap: 1,
                     fontFamily: "Plus Jakarta Sans",
                     fontSize: {
                       xs: "12px",
-                      sm: "13px",
-                      md: "14px",
-                      lg: "19px",
+                      sm: "10px",
+                      md: "11px",
+                      lg: "13px",
                     },
                     color: "inherit",
                     textDecoration: "none",
@@ -52,14 +65,31 @@ const Header = () => {
                   {name}
                 </Box>
               ))}
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={() => open()}
+                sx={{
+                  width: "120px",
+                  background:
+                    "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
+                  borderRadius: "8px",
+                  "&:hover": {
+                    background:
+                      "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
+                  },
+                }}
+              >
+                {!isConnected ? "Connect" : "Disconnect"}
+              </Button>
             </Hidden>
             <Hidden mdUp>
-              <Box sx={{ cursor: "pointer" }} onClick={() => setOpen(true)}>
+              <Box sx={{ cursor: "pointer" }} onClick={() => setOpen1(true)}>
                 <MenuIcon />
               </Box>
               <Drawer
-                open={open}
-                onClose={() => setOpen(false)}
+                open={open1}
+                onClose={() => setOpen1(false)}
                 anchor="right"
                 sx={{
                   "& .MuiDrawer-paper": {
@@ -99,11 +129,29 @@ const Header = () => {
                         my: 2,
                         cursor: "pointer",
                       }}
-                      onClick={() => setOpen(false)}
+                      onClick={() => setOpen1(false)}
                     >
                       {name}
                     </Box>
                   ))}
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    onClick={() => {
+                      open();
+                      setOpen1(false);
+                    }}
+                    sx={{
+                      mt: 2,
+                      background: "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
+                      borderRadius: "8px",
+                      "&:hover": {
+                        background: "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
+                      },
+                    }}
+                  >
+                    {!isConnected ? "Connect" : "Disconnect"}
+                  </Button>
                 </Box>
               </Drawer>
             </Hidden>

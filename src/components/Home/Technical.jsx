@@ -75,7 +75,7 @@ const Technical = () => {
             >
               {[
                 {
-                  title: "Built on Magnetra Chain",
+                  title: "Built on Mantra Chain",
                   description:
                     "Leveraging scalable, secure infrastructure for fast and cost-efficient transactions.",
                 },

@@ -15,7 +15,8 @@ import {
 const queryClient = new QueryClient();
 
 // 1. Get projectId from https://cloud.reown.com
-const projectId = import.meta.env.VITE_PROJECT_ID;
+// const projectId = import.meta.env.VITE_PROJECT_ID;
+const projectId = "cba73ada547c01c1a64d7725fb732495";
 
 // 2. Create a metadata object - optional
 const metadata = {

@@ -1,6 +1,10 @@
 import { Box, Container, Typography } from "@mui/material";
 import React from "react";
 import img from "../assets/footerImg.png";
+import flogo from "../assets/flogo.png";
+import XIcon from "@mui/icons-material/X";
+import TelegramIcon from "@mui/icons-material/Telegram";
+import discord from "../assets/discordi.png";
 
 const Footer = () => {
   const navLinks = [
@@ -11,6 +15,7 @@ const Footer = () => {
     { name: "Tokenomics", path: "#tokenomics" },
     { name: "Technical overview", path: "#overview" },
     { name: "Roadmap", path: "#roadmap" },
+    { name: "Whitepaper", path: "/whitepaper.pdf" },
   ];
   return (
     //         {/* Right Gradient Line */}
@@ -42,16 +47,7 @@ const Footer = () => {
         >
           {/* Left Side - Logo and Navigation */}
           <Box sx={{ mb: { xs: 4, md: 0 } }}>
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 700,
-                letterSpacing: "0.1em",
-                mb: 3,
-              }}
-            >
-              MAGNETRA
-            </Typography>
+            <Box component="img" src={flogo} width="150px" mb={3} alt="" />
             <Box
               sx={{
                 display: "flex",
@@ -69,7 +65,7 @@ const Footer = () => {
                     color: "rgba(255,255,255,0.7)",
                     textDecoration: "none",
                     fontWeight: 400,
-                    fontSize: { xs: "13px", sm: "17px", md: "23px" },
+                    fontSize: { xs: "13px", sm: "17px", md: "20px" },
                     fontFamily: "plus jakarta sans",
                     transition: "color 0.3s ease",
                     "&:hover": {
@@ -82,7 +78,39 @@ const Footer = () => {
               ))}
             </Box>
           </Box>
-
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            mb={2}
+          >
+            <a
+              href="https://x.com/MagnetraDEX/"
+              target="_blank"
+              style={{ textDecoration: "none" }}
+            >
+              <XIcon
+                sx={{ fontSize: "20px", color: "#Fff", marginRight: "20px" }}
+              />
+            </a>
+            <Box
+              component="img"
+              src={discord}
+              sx={{
+                width: "24px",
+                height: "24px",
+                marginRight: "20px",
+                cursor: "pointer",
+              }}
+            />
+            <a
+              href="https://t.me/Magnetradex"
+              target="_blank"
+              style={{ textDecoration: "none" }}
+            >
+              <TelegramIcon sx={{ fontSize: "27px", color: "#Fff" }} />
+            </a>
+          </Box>
           {/* Right Side - Copyright */}
           <Box
             sx={{

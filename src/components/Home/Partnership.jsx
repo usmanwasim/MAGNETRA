@@ -132,8 +132,8 @@ const Partnership = () => {
           <Grid item xs={12} md={4}>
             <IntegrationCard
               icon={icon1}
-              title="Magnetra Ecosystem"
-              description="Built on the Magnetra chain, our DEX will seamlessly integrate with other projects in the ecosystem, enhancing overall platform utility."
+              title="Mantra Ecosystem"
+              description="Built on the Mantra ecosystem, our DEX will seamlessly integrate with other projects in the ecosystem, enhancing overall platform utility."
             />
           </Grid>
           <Grid item xs={12} md={4}>

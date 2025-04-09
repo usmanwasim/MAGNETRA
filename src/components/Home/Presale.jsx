@@ -51,6 +51,10 @@ import {
 import { networks, contracts } from "./Networks";
 import abi from "./abi.json";
 import axios from "axios";
+import logo from "../../assets/logo.png";
+import { MANTRA_CHAIN_ID, MANTRA_CHAIN_INFO } from "../../mantraconfig";
+import { SigningStargateClient } from "@cosmjs/stargate";
+
 // import TronWeb from "tronweb";
 
 const StyledInputLabel = styled(InputLabel)({
@@ -123,33 +127,82 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
+async function connectKeplr() {
+  if (!window.keplr) {
+    alert("Please install Keplr Wallet!");
+    return null;
+  }
+
+  await window.keplr.experimentalSuggestChain(MANTRA_CHAIN_INFO);
+  await window.keplr.enable(MANTRA_CHAIN_ID);
+
+  const offlineSigner = window.getOfflineSigner(MANTRA_CHAIN_ID);
+  const accounts = await offlineSigner.getAccounts();
+
+  return {
+    address: accounts[0].address,
+    signer: offlineSigner,
+  };
+}
+
+// === Token Transfer Function ===
+async function sendTokens({ signer, senderAddress, recipientAddress, amount }) {
+  const client = await SigningStargateClient.connectWithSigner(
+    MANTRA_CHAIN_INFO.rpc,
+    signer
+  );
+
+  const fee = {
+    amount: [{ denom: "uom", amount: "5000" }],
+    gas: "200000",
+  };
+
+  const result = await client.sendTokens(
+    senderAddress,
+    recipientAddress,
+    [{ denom: "uom", amount }],
+    fee,
+    "Sent from my React app"
+  );
+
+  return result;
+}
+
 // Chain and token configurations
 const chains = [
   {
+    id: "OM",
+    name: "Mantra",
+    icon: "/om.png",
+    symbol: "OM",
+    chainId: MANTRA_CHAIN_INFO.chainId,
+  },
+  {
     id: "eth",
     name: "Ethereum",
-    icon: "https://cryptologos.cc/logos/ethereum-eth-logo.svg",
+    icon: "/eth.svg",
     symbol: "ETH",
     chainId: 1,
   },
   {
     id: "bnb",
     name: "BSC",
-    icon: "https://cryptologos.cc/logos/bnb-bnb-logo.svg",
+    icon: "/bnb.svg",
     symbol: "BNB",
     chainId: 56,
   },
+
   {
     id: "sol",
     name: "Solana",
-    icon: "https://cryptologos.cc/logos/solana-sol-logo.svg",
+    icon: "/sol.svg",
     symbol: "SOL",
     chainId: "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
   },
   {
     id: "trx",
     name: "Tron",
-    icon: "https://cryptologos.cc/logos/tron-trx-logo.svg",
+    icon: "/tron.svg",
     symbol: "TRX",
     chainId: 728126428,
   },
@@ -159,19 +212,23 @@ const getTokensForChain = (chainId) => {
   const stablecoins = {
     eth: {
       symbol: "USDT",
-      icon: "https://cryptologos.cc/logos/tether-usdt-logo.svg",
+      icon: "/usdt.svg",
     },
     bnb: {
       symbol: "USDT",
-      icon: "https://cryptologos.cc/logos/tether-usdt-logo.svg",
+      icon: "/usdt.svg",
+    },
+    OM: {
+      symbol: "USDT",
+      icon: "/usdt.svg",
     },
     sol: {
       symbol: "USDC",
-      icon: "https://cryptologos.cc/logos/usd-coin-usdc-logo.svg",
+      icon: "/usdc.svg",
     },
     trx: {
       symbol: "USDT",
-      icon: "https://cryptologos.cc/logos/tether-usdt-logo.svg",
+      icon: "/usdt.svg",
     },
   };
 
@@ -209,28 +266,57 @@ const getTimeLeft = (endTime) => {
   return { days: 0, hours: 0, minutes: 0, seconds: 0 }; // Presale ended
 };
 
-const presaleEndTime = 1742065199000; // stage 1 end time in milliseconds
+const presaleEndTime = 1744210800000; // stage 1 end time in milliseconds
 
 function PresaleForm() {
-  const [selectedChain, setSelectedChain] = useState("eth");
+  const [selectedChain, setSelectedChain] = useState("OM");
   const [selectedToken, setSelectedToken] = useState("");
+  console.log({ selectedChain, selectedToken }, "selectedChain");
   const [amount, setAmount] = useState("");
   const [cryptoPrices, setCryptoPrices] = useState({});
-  const [preSaleTime, setPreSaleTime] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setPreSaleTime(getTimeLeft(presaleEndTime));
-    }, 1000);
+  // const [preSaleTime, setPreSaleTime] = useState({
+  //   days: 0,
+  //   hours: 0,
+  //   minutes: 0,
+  //   seconds: 0,
+  // });
 
-    return () => clearInterval(timer);
-  }, []);
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     setPreSaleTime(getTimeLeft(presaleEndTime));
+  //   }, 1000);
 
+  //   return () => clearInterval(timer);
+  // }, []);
+  const [walletAddress, setWalletAddress] = useState("");
+  const [signer, setSigner] = useState(null);
+
+  const handleConnectWallet = async () => {
+    const wallet = await connectKeplr();
+    if (wallet) {
+      setWalletAddress(wallet.address);
+      setSigner(wallet.signer);
+    }
+  };
+
+  const handleTransfer = async () => {
+    if (!signer || !walletAddress)
+      return alert("Please connect your wallet first!");
+
+    try {
+      const result = await sendTokens({
+        signer,
+        senderAddress: walletAddress,
+        recipientAddress: "mantra1rqmyfkh9yskd0mqpv070jsq9ytt2wl53x5tgjw",
+        amount: (Number(amount) * 1_000_000).toString(),
+      });
+      toast.success(`✅ Success: TxHash: ${result.transactionHash}`);
+    } catch (err) {
+      console.error(err);
+      toast.error("❌ Transfer Failed");
+    }
+  };
   const { open } = useAppKit();
   const { isConnected, address } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider("solana"); // for solana
@@ -256,16 +342,17 @@ function PresaleForm() {
     const getCryptoPrices = async () => {
       try {
         let pricesMap = await axios.get(
-          "https://api.coingecko.com/api/v3/simple/price?ids=ethereum,solana,binancecoin,tron&vs_currencies=usd"
+          "https://api.coingecko.com/api/v3/simple/price?ids=ethereum,solana,binancecoin,tron,mantra-dao&vs_currencies=usd"
         );
         pricesMap = pricesMap.data;
-        // console.log(pricesMap);
+        // console.log(pricesMap, "pricesMap-=-=--=-");
 
         let pricesFormatted = {
           eth: pricesMap.ethereum.usd,
           sol: pricesMap.solana.usd,
           bnb: pricesMap.binancecoin.usd,
           trx: pricesMap.tron.usd,
+          OM: pricesMap["mantra-dao"].usd,
         };
         setCryptoPrices(pricesFormatted);
       } catch (error) {
@@ -693,11 +780,10 @@ function PresaleForm() {
                     fontWeight: "bold",
                   }}
                 >
-                  {/* {preSaleTime.days} Days - {preSaleTime.hours} Hrs -{" "}
-                  {preSaleTime.minutes} Min - {preSaleTime.seconds} Sec */}
                   Coming Soon
                 </span>
               </Typography>
+
               <Typography
                 sx={{
                   fontSize: { xs: 12, sm: 14 },
@@ -908,6 +994,15 @@ function PresaleForm() {
               >
                 You Pay:
               </Typography>
+              {/* {selectedToken === "om" && (
+                <StyledTextField
+                  fullWidth
+                  placeholder="Recipient Address"
+                  value={recipient}
+                  onChange={(e) => setRecipient(e.target.value)}
+                  sx={{ mb: 2 }}
+                />
+              )} */}
               <StyledTextField
                 fullWidth
                 value={amount}
@@ -960,60 +1055,110 @@ function PresaleForm() {
                     <InputAdornment position="end">
                       <Box
                         component="img"
-                        src="https://via.placeholder.com/24" // Replace with your token logo
+                        src={logo} // Replace with your token logo
                         alt="MGNT"
-                        sx={{ width: 24, height: 24 }}
+                        sx={{ width: "50px" }}
                       />
                     </InputAdornment>
                   ),
                 }}
               />
             </Box>
-            {selectedChain === "trx" || isConnected ? (
-              <>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  startIcon={<Wallet size={20} />}
-                  // onClick={() => handleSendTransaction()}
-                  disabled={true}
-                  sx={{
-                    py: 1.5,
-                    background:
-                      "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
-                    borderRadius: "12px",
-                    fontSize: "1.1rem",
-                    "&:hover": {
+
+            {selectedToken === "OM" ? (
+              <Box>
+                {!walletAddress ? (
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    startIcon={<Wallet size={20} />}
+                    onClick={handleConnectWallet}
+                    sx={{
+                      py: 1.5,
                       background:
-                        "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
-                    },
-                  }}
-                >
-                  Purchase Tokens
-                </Button>
-              </>
+                        "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
+                      borderRadius: "12px",
+                      fontSize: "1.1rem",
+                      "&:hover": {
+                        background:
+                          "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
+                      },
+                    }}
+                  >
+                    Connect Wallet
+                  </Button>
+                ) : (
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    startIcon={<Wallet size={20} />}
+                    onClick={handleTransfer}
+                    disabled={!walletAddress}
+                    sx={{
+                      py: 1.5,
+                      background:
+                        "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
+                      borderRadius: "12px",
+                      fontSize: "1.1rem",
+                      "&:hover": {
+                        background:
+                          "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
+                      },
+                    }}
+                  >
+                    Purchase Tokens
+                  </Button>
+                )}
+              </Box>
             ) : (
-              <>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  startIcon={<Wallet size={20} />}
-                  onClick={() => open()}
-                  sx={{
-                    py: 1.5,
-                    background:
-                      "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
-                    borderRadius: "12px",
-                    fontSize: "1.1rem",
-                    "&:hover": {
-                      background:
-                        "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
-                    },
-                  }}
-                >
-                  Connect Wallet
-                </Button>
-              </>
+              <Box>
+                {selectedChain === "trx" || isConnected ? (
+                  <>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      startIcon={<Wallet size={20} />}
+                      onClick={() => handleSendTransaction()}
+                      disabled={true}
+                      sx={{
+                        py: 1.5,
+                        background:
+                          "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
+                        borderRadius: "12px",
+                        fontSize: "1.1rem",
+                        "&:hover": {
+                          background:
+                            "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
+                        },
+                      }}
+                    >
+                      Purchase Tokens
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      startIcon={<Wallet size={20} />}
+                      onClick={() => open()}
+                      sx={{
+                        py: 1.5,
+                        background:
+                          "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
+                        borderRadius: "12px",
+                        fontSize: "1.1rem",
+                        "&:hover": {
+                          background:
+                            "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
+                        },
+                      }}
+                    >
+                      Connect Wallet
+                    </Button>
+                  </>
+                )}
+              </Box>
             )}
           </CardContent>
         </Card>
