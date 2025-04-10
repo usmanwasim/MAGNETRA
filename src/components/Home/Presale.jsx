@@ -14,6 +14,7 @@ import {
   styled,
   Grid,
   Chip,
+  Dialog,
 } from "@mui/material";
 import { Wallet } from "lucide-react";
 import { toast } from "react-toastify";
@@ -271,9 +272,10 @@ const presaleEndTime = 1744210800000; // stage 1 end time in milliseconds
 function PresaleForm() {
   const [selectedChain, setSelectedChain] = useState("OM");
   const [selectedToken, setSelectedToken] = useState("");
-  console.log({ selectedChain, selectedToken }, "selectedChain");
+  // console.log({ selectedChain, selectedToken }, "selectedChain");
   const [amount, setAmount] = useState("");
   const [cryptoPrices, setCryptoPrices] = useState({});
+  const [model, setModel] = useState(false);
 
   // const [preSaleTime, setPreSaleTime] = useState({
   //   days: 0,
@@ -366,15 +368,11 @@ function PresaleForm() {
   const handleChainChange = async (event) => {
     console.log(event.target.value);
     if (event.target.value === "trx") {
-      let address = await connectTronLink();
-      if (!address) {
-        toast.error("Please unlock TronLink to switch network");
-        return;
-      }
+      setModel(true);
     } else {
       switchNetwork(networks[event.target.value]);
+      setSelectedChain(event.target.value);
     }
-    setSelectedChain(event.target.value);
     setAmount("");
   };
 
@@ -710,6 +708,30 @@ function PresaleForm() {
         px: { xs: 2, sm: 3, md: 4 },
       }}
     >
+      <Dialog open={model} onClose={() => setModel(false)}>
+        <Button
+          onClick={async () => {
+            let address = await connectTronLink();
+            if (!address) {
+              toast.error("Please unlock TronLink to switch network");
+              return;
+            }
+            setSelectedChain("trx");
+            setModel(false);
+          }}
+        >
+          Tron Link{" "}
+        </Button>
+        <Button
+          onClick={() => {
+            open();
+            setModel(false);
+          }}
+        >
+          {" "}
+          Trust Wallet{" "}
+        </Button>
+      </Dialog>
       <Box
         sx={{
           maxWidth: "480px",
