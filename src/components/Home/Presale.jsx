@@ -465,7 +465,9 @@ function PresaleForm() {
     try {
       if (!amount || amount === "" || !cryptoPrices[selectedChain]) return 0;
 
-      const parsedAmount = parseFloat(amount);
+      const parsedAmount = Number(amount);
+      console.log();
+
       if (isNaN(parsedAmount) || parsedAmount <= 0) {
         toast.error("Please enter a valid amount");
         return 0;
@@ -1063,8 +1065,8 @@ function PresaleForm() {
               )} */}
               <StyledTextField
                 fullWidth
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                defaultValue={amount}
+                onBlur={(e) => setAmount(e.target.value)}
                 placeholder={`Amount in ${selectedToken}`}
                 type="number"
                 InputProps={{
