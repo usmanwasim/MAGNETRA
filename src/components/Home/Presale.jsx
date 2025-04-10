@@ -708,8 +708,33 @@ function PresaleForm() {
         px: { xs: 2, sm: 3, md: 4 },
       }}
     >
-      <Dialog open={model} onClose={() => setModel(false)}>
+      <Dialog
+        open={model}
+        onClose={() => setModel(false)}
+        sx={{
+          "& .MuiDialog-paper": {
+            p: 2,
+            // background: "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
+            // borderRadius: "12px",
+          },
+        }}
+      >
+        <Typography variant="h5" sx={{ fontWeight: 500, textAlign: "center" }}>
+          Chose a Wallet
+        </Typography>
         <Button
+          variant="contained"
+          startIcon={<Wallet size={20} />}
+          sx={{
+            py: 1,
+            my: 1.5,
+            background: "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
+            borderRadius: "12px",
+            fontSize: "1.1rem",
+            "&:hover": {
+              background: "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
+            },
+          }}
           onClick={async () => {
             let address = await connectTronLink();
             if (!address) {
@@ -723,6 +748,17 @@ function PresaleForm() {
           Tron Link{" "}
         </Button>
         <Button
+          variant="contained"
+          startIcon={<Wallet size={20} />}
+          sx={{
+            py: 1,
+            background: "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
+            borderRadius: "12px",
+            fontSize: "1.1rem",
+            "&:hover": {
+              background: "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
+            },
+          }}
           onClick={() => {
             open();
             setModel(false);
@@ -1141,7 +1177,7 @@ function PresaleForm() {
                       variant="contained"
                       startIcon={<Wallet size={20} />}
                       onClick={() => handleSendTransaction()}
-                      disabled={true}
+                      // disabled={true}
                       sx={{
                         py: 1.5,
                         background:
