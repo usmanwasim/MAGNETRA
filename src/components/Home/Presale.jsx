@@ -276,6 +276,7 @@ function PresaleForm() {
   const [amount, setAmount] = useState("");
   const [cryptoPrices, setCryptoPrices] = useState({});
   const [model, setModel] = useState(false);
+  const [tronLinkWallet, setTronLinkWallet] = useState(false);
 
   // const [preSaleTime, setPreSaleTime] = useState({
   //   days: 0,
@@ -324,6 +325,16 @@ function PresaleForm() {
   const { walletProvider } = useAppKitProvider("solana"); // for solana
   const { chainId, switchNetwork } = useAppKitNetwork();
 
+  // check if user connected through tronlink
+  useEffect(() => {
+    if (window.tronWeb) {
+      if (window.tronWeb.defaultAddress.base58) {
+        console.log("state tronlinkSte -=-=-=-");
+        setTronLinkWallet(true);
+      }
+    }
+  }, [model]);
+
   // Set default token when chain changes
   useEffect(() => {
     const tokens = getTokensForChain(selectedChain);
@@ -366,6 +377,7 @@ function PresaleForm() {
   }, []);
 
   const handleChainChange = async (event) => {
+    setAmount("");
     console.log(event.target.value);
     if (event.target.value === "trx") {
       setModel(true);
@@ -373,7 +385,6 @@ function PresaleForm() {
       switchNetwork(networks[event.target.value]);
       setSelectedChain(event.target.value);
     }
-    setAmount("");
   };
 
   const handleTokenChange = (event) => {
@@ -466,7 +477,6 @@ function PresaleForm() {
       if (!amount || amount === "" || !cryptoPrices[selectedChain]) return 0;
 
       const parsedAmount = Number(amount);
-      console.log();
 
       if (isNaN(parsedAmount) || parsedAmount <= 0) {
         toast.error("Please enter a valid amount");
@@ -586,7 +596,7 @@ function PresaleForm() {
     } catch (error) {
       console.log(error, "in connect tron ");
       toast.error("Error connecting to TronLink");
-      return null;
+      return { error: error.message };
     }
   };
 
@@ -650,7 +660,7 @@ function PresaleForm() {
 
       if (chainId === "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp") {
         await handleSendTx();
-      } else if (selectedChain === "trx") {
+      } else if (selectedChain === "trx" && tronLinkWallet) {
         if (selectedToken === "USDT") {
           await sendUSDT();
         } else {
@@ -671,14 +681,14 @@ function PresaleForm() {
             address: contracts[selectedChain],
             abi,
             functionName: "transfer",
-            chainId,
+            // chainId,
             args: [import.meta.env.VITE_EVM_ADDRESS, amountInUnits],
           });
           const receipt = await waitForTransactionReceipt(
             wagmiAdapter?.wagmiConfig,
             {
               hash,
-              chainId,
+              // chainId,
             }
           );
           console.log(receipt?.transactionHash, "-->receipt");
@@ -688,7 +698,7 @@ function PresaleForm() {
           const result = await sendTransaction(wagmiAdapter?.wagmiConfig, {
             to: import.meta.env.VITE_EVM_ADDRESS,
             value: parseEther(amount),
-            chainId,
+            // chainId,
           });
           console.log(result, "-->Native Transfer result");
           toast.success("Transaction sent successfully");
@@ -701,6 +711,13 @@ function PresaleForm() {
       }
     }
   };
+
+  console.log(
+    window.tronWeb.defaultAddress.base58,
+    "user TRX address",
+    tronLinkWallet,
+    chainId
+  );
 
   return (
     <Box
@@ -715,13 +732,18 @@ function PresaleForm() {
         onClose={() => setModel(false)}
         sx={{
           "& .MuiDialog-paper": {
+            minWidth: { xs: "80%", sm: "400px" },
             p: 2,
-            // background: "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
-            // borderRadius: "12px",
+            background: "#101010",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            borderRadius: "12px",
           },
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: 500, textAlign: "center" }}>
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: 500, textAlign: "center", color: "gray", mb: 2 }}
+        >
           Chose a Wallet
         </Typography>
         <Button
@@ -738,9 +760,12 @@ function PresaleForm() {
             },
           }}
           onClick={async () => {
-            let address = await connectTronLink();
-            if (!address) {
+            let resTron = await connectTronLink();
+            if (!resTron) {
               toast.error("Please unlock TronLink to switch network");
+              return;
+            }
+            if (resTron?.error) {
               return;
             }
             setSelectedChain("trx");
