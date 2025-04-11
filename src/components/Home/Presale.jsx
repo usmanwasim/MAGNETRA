@@ -478,7 +478,7 @@ function PresaleForm() {
 
       const parsedAmount = Number(amount);
 
-      if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      if (isNaN(parsedAmount) || parsedAmount < 0) {
         toast.error("Please enter a valid amount");
         return 0;
       }
@@ -668,6 +668,11 @@ function PresaleForm() {
         }
       } else {
         if (selectedToken === "USDT") {
+          console.log(
+            contracts[selectedChain],
+            "selected chain contract address =-=-= "
+          );
+
           //    check token decimals
           const result = await readContract(wagmiAdapter.wagmiConfig, {
             abi,
@@ -1090,8 +1095,8 @@ function PresaleForm() {
               )} */}
               <StyledTextField
                 fullWidth
-                defaultValue={amount}
-                onBlur={(e) => setAmount(e.target.value)}
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
                 placeholder={`Amount in ${selectedToken}`}
                 type="number"
                 InputProps={{
