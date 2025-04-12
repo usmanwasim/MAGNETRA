@@ -51,12 +51,23 @@ import {
 } from "@solana/spl-token";
 import { networks, contracts } from "./Networks";
 import abi from "./abi.json";
+import tronAbi from "./tronAbi.json";
 import axios from "axios";
 import logo from "../../assets/logo.png";
 import { MANTRA_CHAIN_ID, MANTRA_CHAIN_INFO } from "../../mantraconfig";
 import { SigningStargateClient } from "@cosmjs/stargate";
-
+import {
+  WalletConnectWallet,
+  WalletConnectChainID,
+} from "@tronweb3/walletconnect-tron";
 // import TronWeb from "tronweb";
+
+const tronWallet = new WalletConnectWallet({
+  network: WalletConnectChainID.Mainnet,
+  options: {
+    projectId: "cba73ada547c01c1a64d7725fb732495",
+  },
+});
 
 const StyledInputLabel = styled(InputLabel)({
   color: "rgba(255, 255, 255, 0.7)",
@@ -329,7 +340,6 @@ function PresaleForm() {
   useEffect(() => {
     if (window.tronWeb) {
       if (window.tronWeb.defaultAddress.base58) {
-        console.log("state tronlinkSte -=-=-=-");
         setTronLinkWallet(true);
       }
     }
@@ -668,32 +678,32 @@ function PresaleForm() {
         }
       } else {
         if (selectedToken === "USDT") {
-          console.log(
-            contracts[selectedChain],
-            "selected chain contract address =-=-= "
-          );
-
-          //    check token decimals
+          let finalAbi = abi;
+          if (selectedChain === "trx") {
+            finalAbi = tronAbi;
+          }
+          //     check token decimals
           const result = await readContract(wagmiAdapter.wagmiConfig, {
-            abi,
+            abi: finalAbi,
             address: contracts[selectedChain],
             functionName: "decimals",
+            chainId,
           });
           //   usdt transfer
           const amountInUnits = parseUnits(amount, result.toString());
 
           const hash = await writeContract(wagmiAdapter?.wagmiConfig, {
             address: contracts[selectedChain],
-            abi,
+            abi: finalAbi,
             functionName: "transfer",
-            // chainId,
+            chainId,
             args: [import.meta.env.VITE_EVM_ADDRESS, amountInUnits],
           });
           const receipt = await waitForTransactionReceipt(
             wagmiAdapter?.wagmiConfig,
             {
               hash,
-              // chainId,
+              chainId,
             }
           );
           console.log(receipt?.transactionHash, "-->receipt");
@@ -703,7 +713,7 @@ function PresaleForm() {
           const result = await sendTransaction(wagmiAdapter?.wagmiConfig, {
             to: import.meta.env.VITE_EVM_ADDRESS,
             value: parseEther(amount),
-            // chainId,
+            chainId,
           });
           console.log(result, "-->Native Transfer result");
           toast.success("Transaction sent successfully");
@@ -716,13 +726,6 @@ function PresaleForm() {
       }
     }
   };
-
-  console.log(
-    window.tronWeb.defaultAddress.base58,
-    "user TRX address",
-    tronLinkWallet,
-    chainId
-  );
 
   return (
     <Box
@@ -791,13 +794,16 @@ function PresaleForm() {
               background: "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
             },
           }}
-          onClick={() => {
-            open();
+          onClick={async () => {
+            let a = await tronWallet.connect();
+            console.log({ a });
+            toast.success("Wallet connected successfully");
+            // await tronWallet.disconnect();
             setModel(false);
           }}
         >
           {" "}
-          Trust Wallet{" "}
+          Wallet Connect
         </Button>
       </Dialog>
       <Box
