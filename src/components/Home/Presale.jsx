@@ -56,17 +56,13 @@ import axios from "axios";
 import logo from "../../assets/logo.png";
 import { MANTRA_CHAIN_ID, MANTRA_CHAIN_INFO } from "../../mantraconfig";
 import { SigningStargateClient } from "@cosmjs/stargate";
-import {
-  WalletConnectWallet,
-  WalletConnectChainID,
-} from "@tronweb3/walletconnect-tron";
-// import TronWeb from "tronweb";
 
-const tronWallet = new WalletConnectWallet({
-  network: WalletConnectChainID.Mainnet,
-  options: {
-    projectId: "cba73ada547c01c1a64d7725fb732495",
-  },
+import { useWallet } from "@tronweb3/tronwallet-adapter-react-hooks";
+import { useTronContext } from "../../App";
+import { TronWeb } from "tronweb";
+
+const tronWeb = new TronWeb({
+  fullHost: "https://api.trongrid.io",
 });
 
 const StyledInputLabel = styled(InputLabel)({
@@ -287,7 +283,15 @@ function PresaleForm() {
   const [amount, setAmount] = useState("");
   const [cryptoPrices, setCryptoPrices] = useState({});
   const [model, setModel] = useState(false);
-  const [tronLinkWallet, setTronLinkWallet] = useState(false);
+  const {
+    wallet,
+    select,
+    connected,
+    signTransaction,
+    address: tron_address,
+  } = useWallet();
+  console.log({ wallet, connected });
+  const { setIsTrx } = useTronContext();
 
   // const [preSaleTime, setPreSaleTime] = useState({
   //   days: 0,
@@ -331,19 +335,11 @@ function PresaleForm() {
       toast.error("❌ Transfer Failed");
     }
   };
+
   const { open } = useAppKit();
   const { isConnected, address } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider("solana"); // for solana
   const { chainId, switchNetwork } = useAppKitNetwork();
-
-  // check if user connected through tronlink
-  useEffect(() => {
-    if (window.tronWeb) {
-      if (window.tronWeb.defaultAddress.base58) {
-        setTronLinkWallet(true);
-      }
-    }
-  }, [model]);
 
   // Set default token when chain changes
   useEffect(() => {
@@ -354,7 +350,7 @@ function PresaleForm() {
   // Set selected chain when wallet is connected
   useEffect(() => {
     chains?.forEach((item) => {
-      if (item.chainId === chainId) {
+      if (item.chainId === chainId && isConnected) {
         setSelectedChain(item.id);
       }
     });
@@ -589,70 +585,70 @@ function PresaleForm() {
     }
   };
 
-  const connectTronLink = async () => {
-    try {
-      if (window.tronWeb) {
-        await window.tronWeb.request({ method: "tron_requestAccounts" });
-        console.log(window.tronWeb.defaultAddress);
+  // const connectTronLink = async () => {
+  //   try {
+  //     if (window.tronWeb) {
+  //       await window.tronWeb.request({ method: "tron_requestAccounts" });
+  //       console.log(window.tronWeb.defaultAddress);
 
-        return window.tronWeb.defaultAddress.base58
-          ? window.tronWeb.defaultAddress.base58
-          : null;
-      } else {
-        console.error("TronLink is not installed.");
-        toast.error("TronLink is not installed");
-        return null;
-      }
-    } catch (error) {
-      console.log(error, "in connect tron ");
-      toast.error("Error connecting to TronLink");
-      return { error: error.message };
-    }
-  };
+  //       return window.tronWeb.defaultAddress.base58
+  //         ? window.tronWeb.defaultAddress.base58
+  //         : null;
+  //     } else {
+  //       console.error("TronLink is not installed.");
+  //       toast.error("TronLink is not installed");
+  //       return null;
+  //     }
+  //   } catch (error) {
+  //     console.log(error, "in connect tron ");
+  //     toast.error("Error connecting to TronLink");
+  //     return { error: error.message };
+  //   }
+  // };
 
-  const sendTRX = async () => {
-    try {
-      if (!window.tronWeb) toast.error("TronLink is not installed");
-      if (!window.tronWeb.defaultAddress.base58) {
-        toast.error("Please connect your wallet");
-      }
+  // const sendTRX = async () => {
+  //   try {
+  //     if (!window.tronWeb) toast.error("TronLink is not installed");
+  //     if (!window.tronWeb.defaultAddress.base58) {
+  //       toast.error("Please connect your wallet");
+  //     }
 
-      const amountInSun = window.tronWeb.toSun(amount);
-      const transaction = await window.tronWeb.trx.sendTransaction(
-        import.meta.env.VITE_TRON_ADDRESS,
-        amountInSun
-      );
-      console.log("TRX Transaction ---->> ", transaction);
-      toast.success("Transaction sent successfully");
-      return transaction;
-    } catch (error) {
-      console.error("TRX Transaction Error:", error);
-      toast.error(error);
-    }
-  };
+  //     const amountInSun = window.tronWeb.toSun(amount);
+  //     const transaction = await window.tronWeb.trx.sendTransaction(
+  //       import.meta.env.VITE_TRON_ADDRESS,
+  //       amountInSun
+  //     );
+  //     console.log("TRX Transaction ---->> ", transaction);
+  //     toast.success("Transaction sent successfully");
+  //     return transaction;
+  //   } catch (error) {
+  //     console.error("TRX Transaction Error:", error);
+  //     toast.error(error);
+  //   }
+  // };
 
-  const sendUSDT = async () => {
-    try {
-      if (!window.tronWeb) toast.error("TronLink is not installed");
-      if (!window.tronWeb.defaultAddress.base58)
-        toast.error("Please connect your wallet");
+  // const sendUSDT = async () => {
+  //   try {
+  //     if (!window.tronWeb) toast.error("TronLink is not installed");
+  //     if (!window.tronWeb.defaultAddress.base58)
+  //       toast.error("Please connect your wallet");
 
-      const usdtContract = await window.tronWeb
-        .contract()
-        .at(contracts[selectedChain]);
-      const amountInSun = amount * 1_000_000;
+  //     const usdtContract = await window.tronWeb
+  //       .contract()
+  //       .at(contracts[selectedChain]);
+  //     const amountInSun = amount * 1_000_000;
 
-      const transaction = await usdtContract
-        .transfer(import.meta.env.VITE_TRON_ADDRESS, amountInSun)
-        .send();
-      console.log("TRX Transaction ---->> ", transaction);
-      toast.success("Transaction sent successfully");
-      return transaction;
-    } catch (error) {
-      console.error("USDT Transaction Error:", error);
-      toast.error(error);
-    }
-  };
+  //     const transaction = await usdtContract
+  //       .transfer(import.meta.env.VITE_TRON_ADDRESS, amountInSun)
+  //       .send();
+  //     console.log("TRX Transaction ---->> ", transaction);
+  //     toast.success("Transaction sent successfully");
+  //     return transaction;
+  //   } catch (error) {
+  //     console.error("USDT Transaction Error:", error);
+  //     toast.error(error);
+  //   }
+  // };
 
   const handleSendTransaction = async () => {
     try {
@@ -670,21 +666,39 @@ function PresaleForm() {
 
       if (chainId === "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp") {
         await handleSendTx();
-      } else if (selectedChain === "trx" && tronLinkWallet) {
+      } else if (selectedChain === "trx") {
         if (selectedToken === "USDT") {
-          await sendUSDT();
+          console.log("USDT Tron -=-=--=- ");
+          // send usdt trx
+
+          // working for just window or tronlink
+          const contract = await window.tronWeb.contract(
+            tronAbi,
+            "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+          );
+
+          const amountInSun = amount * 1_000_000;
+          console.log({ amountInSun, add: import.meta.env.VITE_TRON_ADDRESS });
+
+          const transaction = await contract
+            .transfer("TKx5HiH2wKVv2a9LKXezYDWR8whPtgGtXL", amountInSun)
+            .send();
+          console.log(transaction);
         } else {
-          await sendTRX();
+          console.log("Native Tron-=-=---- ");
+          const transaction = await tronWeb.transactionBuilder.sendTrx(
+            import.meta.env.VITE_TRON_ADDRESS,
+            tronWeb.toSun(amount),
+            tron_address
+          );
+          const signedTransaction = await signTransaction(transaction);
+          await tronWeb.trx.sendRawTransaction(signedTransaction);
         }
       } else {
         if (selectedToken === "USDT") {
-          let finalAbi = abi;
-          if (selectedChain === "trx") {
-            finalAbi = tronAbi;
-          }
           //     check token decimals
           const result = await readContract(wagmiAdapter.wagmiConfig, {
-            abi: finalAbi,
+            abi,
             address: contracts[selectedChain],
             functionName: "decimals",
             chainId,
@@ -694,7 +708,7 @@ function PresaleForm() {
 
           const hash = await writeContract(wagmiAdapter?.wagmiConfig, {
             address: contracts[selectedChain],
-            abi: finalAbi,
+            abi,
             functionName: "transfer",
             chainId,
             args: [import.meta.env.VITE_EVM_ADDRESS, amountInUnits],
@@ -752,7 +766,7 @@ function PresaleForm() {
           variant="h5"
           sx={{ fontWeight: 500, textAlign: "center", color: "gray", mb: 2 }}
         >
-          Chose a Wallet
+          {connected ? "Wallet Connected" : "Connect Wallet"}
         </Typography>
         <Button
           variant="contained"
@@ -768,16 +782,12 @@ function PresaleForm() {
             },
           }}
           onClick={async () => {
-            let resTron = await connectTronLink();
-            if (!resTron) {
-              toast.error("Please unlock TronLink to switch network");
-              return;
-            }
-            if (resTron?.error) {
-              return;
-            }
+            select("TronLink");
+            // if (connected) {
+            // }
             setSelectedChain("trx");
             setModel(false);
+            setIsTrx(true);
           }}
         >
           Tron Link{" "}
@@ -795,11 +805,10 @@ function PresaleForm() {
             },
           }}
           onClick={async () => {
-            let a = await tronWallet.connect();
-            console.log({ a });
-            toast.success("Wallet connected successfully");
-            // await tronWallet.disconnect();
+            select("WalletConnect");
+            setSelectedChain("trx");
             setModel(false);
+            setIsTrx(true);
           }}
         >
           {" "}

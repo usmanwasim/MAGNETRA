@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import flogo from "../assets/flogo.png";
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
+import { useTronContext } from "../App";
 
 const menuItems = [
   { name: "ABOUT", path: "#about" },
@@ -22,6 +23,9 @@ const Header = () => {
   const [open1, setOpen1] = useState(false);
   const { open } = useAppKit();
   const { isConnected } = useAppKitAccount();
+  const { disconnect, connected } = useTronContext();
+  const { isTrx, setIsTrx } = useTronContext();
+  console.log({ isTrx });
 
   return (
     <>
@@ -65,23 +69,49 @@ const Header = () => {
                   {name}
                 </Box>
               ))}
-              <Button
-                fullWidth
-                variant="contained"
-                onClick={() => open()}
-                sx={{
-                  width: "120px",
-                  background:
-                    "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
-                  borderRadius: "8px",
-                  "&:hover": {
+              {isTrx && connected ? (
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={() => {
+                    disconnect();
+                    setIsTrx(false);
+                  }}
+                  sx={{
+                    width: "120px",
                     background:
-                      "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
-                  },
-                }}
-              >
-                {!isConnected ? "Connect" : "Disconnect"}
-              </Button>
+                      "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
+                    borderRadius: "8px",
+                    "&:hover": {
+                      background:
+                        "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
+                    },
+                  }}
+                >
+                  Disconnect
+                </Button>
+              ) : (
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={() => {
+                    open();
+                    setOpen1(false);
+                  }}
+                  sx={{
+                    width: "120px",
+                    background:
+                      "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
+                    borderRadius: "8px",
+                    "&:hover": {
+                      background:
+                        "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
+                    },
+                  }}
+                >
+                  {!isConnected ? "Connect" : "Disconnect"}
+                </Button>
+              )}
             </Hidden>
             <Hidden mdUp>
               <Box sx={{ cursor: "pointer" }} onClick={() => setOpen1(true)}>
@@ -134,24 +164,49 @@ const Header = () => {
                       {name}
                     </Box>
                   ))}
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    onClick={() => {
-                      open();
-                      setOpen1(false);
-                    }}
-                    sx={{
-                      mt: 2,
-                      background: "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
-                      borderRadius: "8px",
-                      "&:hover": {
-                        background: "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
-                      },
-                    }}
-                  >
-                    {!isConnected ? "Connect" : "Disconnect"}
-                  </Button>
+                  {isTrx && connected ? (
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      onClick={() => {
+                        disconnect();
+                        setIsTrx(false);
+                      }}
+                      sx={{
+                        mt: 2,
+                        background:
+                          "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
+                        borderRadius: "8px",
+                        "&:hover": {
+                          background:
+                            "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
+                        },
+                      }}
+                    >
+                      Disconnect
+                    </Button>
+                  ) : (
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      onClick={() => {
+                        open();
+                        setOpen1(false);
+                      }}
+                      sx={{
+                        mt: 2,
+                        background:
+                          "linear-gradient(90deg, #e561c3 0%, #a261e5 100%)",
+                        borderRadius: "8px",
+                        "&:hover": {
+                          background:
+                            "linear-gradient(90deg, #d450b2 0%, #9150d4 100%)",
+                        },
+                      }}
+                    >
+                      {!isConnected ? "Connect" : "Disconnect"}
+                    </Button>
+                  )}
                 </Box>
               </Drawer>
             </Hidden>

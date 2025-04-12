@@ -1,11 +1,19 @@
+import { createContext, useState, useContext } from "react";
 import "./App.css";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import HomePage from "./components/Home/Index";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { TronProvider } from "./TronConfig";
 
-function App() {
+const TronConetxt = createContext({});
+
+export const useTronContext = () => useContext(TronConetxt);
+
+export function App() {
+  const [isTrx, setIsTrx] = useState(false);
+  const tronValue = { isTrx, setIsTrx };
   return (
     <>
       <ToastContainer
@@ -13,6 +21,7 @@ function App() {
         autoClose={5000}
         limit={3}
         hideProgressBar={false}
+        s
         newestOnTop={false}
         closeOnClick
         rtl={false}
@@ -20,8 +29,12 @@ function App() {
         draggable
         pauseOnHover
       />
-      <Header />
-      <HomePage />
+      <TronProvider>
+        <TronConetxt.Provider value={tronValue}>
+          <Header />
+          <HomePage />
+        </TronConetxt.Provider>
+      </TronProvider>
       <Footer />
     </>
   );

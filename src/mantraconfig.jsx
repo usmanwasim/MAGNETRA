@@ -1,9 +1,9 @@
-export const MANTRA_CHAIN_ID = "mantra-dukong-1";
+export const MANTRA_CHAIN_ID = "mantra-1";
 export const MANTRA_CHAIN_INFO = {
-  chainId: "mantra-dukong-1",
-  chainName: "MANTRA-Dukong",
-  rpc: "https://rpc.dukong.mantrachain.io",
-  rest: "https://api.dukong.mantrachain.io",
+  chainId: "mantra-1",
+  chainName: "MANTRA-1",
+  rpc: "https://rpc.mantrachain.io",
+  rest: "https://api.mantrachain.io",
   bip44: {
     coinType: 118,
   },
