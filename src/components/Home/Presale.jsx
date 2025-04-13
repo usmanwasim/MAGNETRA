@@ -326,7 +326,7 @@ function PresaleForm() {
       const result = await sendTokens({
         signer,
         senderAddress: walletAddress,
-        recipientAddress: "mantra1rqmyfkh9yskd0mqpv070jsq9ytt2wl53x5tgjw",
+        recipientAddress: "mantra1nj73fqswlff3jqj2lytqjr7fw4wy0njcaw9wv3",
         amount: (Number(amount) * 1_000_000).toString(),
       });
       toast.success(`✅ Success: TxHash: ${result.transactionHash}`);
