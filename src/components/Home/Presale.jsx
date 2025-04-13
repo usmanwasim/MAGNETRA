@@ -274,7 +274,7 @@ const getTimeLeft = (endTime) => {
   return { days: 0, hours: 0, minutes: 0, seconds: 0 }; // Presale ended
 };
 
-const presaleEndTime = 1744210800000; // stage 1 end time in milliseconds
+const presaleEndTime = 1744804800000; // stage 1 end time in milliseconds
 
 function PresaleForm() {
   const [selectedChain, setSelectedChain] = useState("OM");
@@ -284,29 +284,29 @@ function PresaleForm() {
   const [cryptoPrices, setCryptoPrices] = useState({});
   const [model, setModel] = useState(false);
   const {
-    wallet,
+    // wallet,
     select,
     connected,
     signTransaction,
     address: tron_address,
   } = useWallet();
-  console.log({ wallet, connected });
+  // console.log({ wallet, connected });
   const { setIsTrx } = useTronContext();
 
-  // const [preSaleTime, setPreSaleTime] = useState({
-  //   days: 0,
-  //   hours: 0,
-  //   minutes: 0,
-  //   seconds: 0,
-  // });
+  const [preSaleTime, setPreSaleTime] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
 
-  // useEffect(() => {
-  //   const timer = setInterval(() => {
-  //     setPreSaleTime(getTimeLeft(presaleEndTime));
-  //   }, 1000);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPreSaleTime(getTimeLeft(presaleEndTime));
+    }, 1000);
 
-  //   return () => clearInterval(timer);
-  // }, []);
+    return () => clearInterval(timer);
+  }, []);
   const [walletAddress, setWalletAddress] = useState("");
   const [signer, setSigner] = useState(null);
 
@@ -546,7 +546,6 @@ function PresaleForm() {
           transaction,
           connection
         );
-
         console.log("USDT Transfer Solana ---->> ", signature);
       } else {
         const latestBlockhash = await connection.getLatestBlockhash(
@@ -684,6 +683,7 @@ function PresaleForm() {
             .transfer("TKx5HiH2wKVv2a9LKXezYDWR8whPtgGtXL", amountInSun)
             .send();
           console.log(transaction);
+          toast.success("Transaction sent successfully");
         } else {
           console.log("Native Tron-=-=---- ");
           const transaction = await tronWeb.transactionBuilder.sendTrx(
@@ -693,6 +693,7 @@ function PresaleForm() {
           );
           const signedTransaction = await signTransaction(transaction);
           await tronWeb.trx.sendRawTransaction(signedTransaction);
+          toast.success("Transaction sent successfully");
         }
       } else {
         if (selectedToken === "USDT") {
@@ -737,6 +738,8 @@ function PresaleForm() {
       console.log("Failed to send transaction:=>", err);
       if (err.shortMessage) {
         return toast.error(err.shortMessage);
+      } else {
+        return toast.error(err.message);
       }
     }
   };
@@ -783,8 +786,6 @@ function PresaleForm() {
           }}
           onClick={async () => {
             select("TronLink");
-            // if (connected) {
-            // }
             setSelectedChain("trx");
             setModel(false);
             setIsTrx(true);
@@ -885,7 +886,9 @@ function PresaleForm() {
                     fontWeight: "bold",
                   }}
                 >
-                  Coming Soon
+                  {preSaleTime.days} Days - {preSaleTime.hours} Hrs -{" "}
+                  {preSaleTime.minutes} Min - {preSaleTime.seconds} Sec
+                  {/* Coming Soon */}
                 </span>
               </Typography>
 

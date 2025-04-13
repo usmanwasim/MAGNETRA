@@ -25,7 +25,7 @@ const Header = () => {
   const { isConnected } = useAppKitAccount();
   const { disconnect, connected } = useTronContext();
   const { isTrx, setIsTrx } = useTronContext();
-  console.log({ isTrx });
+  // console.log({ isTrx });
 
   return (
     <>
