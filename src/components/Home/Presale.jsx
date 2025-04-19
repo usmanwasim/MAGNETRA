@@ -274,7 +274,7 @@ const getTimeLeft = (endTime) => {
   return { days: 0, hours: 0, minutes: 0, seconds: 0 }; // Presale ended
 };
 
-const presaleEndTime = 1744804800000; // stage 1 end time in milliseconds
+const presaleEndTime = 1745348400000; // stage 1 end time in milliseconds , Need extra 000 for miliseconds timestamp
 
 function PresaleForm() {
   const [selectedChain, setSelectedChain] = useState("OM");
@@ -865,7 +865,7 @@ function PresaleForm() {
                     width: "max-content",
                   }}
                 >
-                  Phase 1{" "}
+                  Phase 2{" "}
                 </span>
                 {/* Ends In */}
               </Typography>
