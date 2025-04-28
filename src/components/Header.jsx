@@ -6,16 +6,17 @@ import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { useTronContext } from "../App";
 
 const menuItems = [
-  { name: "ABOUT", path: "#about" },
-  { name: "FEATURES", path: "#features" },
-  { name: "TRADING", path: "#trading" },
-  { name: "CONTROL", path: "#control" },
-  { name: "TOKENOMICS", path: "#tokenomics" },
-  { name: "TECHNICAL OVERVIEW", path: "#overview" },
-  { name: "ROADMAP", path: "#roadmap" },
+  { name: "ABOUT", path: "/#about" },
+  { name: "FEATURES", path: "/#features" },
+  { name: "TRADING", path: "/#trading" },
+  { name: "CONTROL", path: "/#control" },
+  { name: "TOKENOMICS", path: "/#tokenomics" },
+  { name: "TECHNICAL OVERVIEW", path: "/#overview" },
+  { name: "ROADMAP", path: "/#roadmap" },
   {
     name: "AIRDROP",
-    path: "https://docs.google.com/forms/d/e/1FAIpQLSeDORak8804SV6q8hAmCT9pH7y3Km20n2ac9o5QMcEwKZNbxg/viewform?embedded=true",
+    // path: "https://docs.google.com/forms/d/e/1FAIpQLSeDORak8804SV6q8hAmCT9pH7y3Km20n2ac9o5QMcEwKZNbxg/viewform?embedded=true",
+    path: "airdrop",
   },
 ];
 

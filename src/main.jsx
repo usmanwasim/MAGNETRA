@@ -4,11 +4,14 @@ import "./index.css";
 import "@tronweb3/tronwallet-adapter-react-ui/style.css";
 import App from "./App.jsx";
 import { AppKitProvider } from "./Wagmi.jsx";
+import { BrowserRouter } from "react-router";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AppKitProvider>
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </AppKitProvider>
   </StrictMode>
 );
